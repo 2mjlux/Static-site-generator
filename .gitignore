@@ -1,0 +1,12 @@
+# Geany editor files
+*.geany
+.geany/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+.venv/
