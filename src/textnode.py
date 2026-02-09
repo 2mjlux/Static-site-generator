@@ -18,4 +18,4 @@ class TextNode:
         return self.__dict__ == other.__dict__
 
     def __repr__(self):
-        return f"TextNode({self.text}, {self.text_type.value}, {self.url}"
+        return f"TextNode({self.text}, {self.text_type.value}, {self.url})"
