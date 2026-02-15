@@ -11,9 +11,11 @@ class HTMLNode:
     def props_to_html(self):
         if self.props == None or self.props == {}:
             return ""
-        result = ""
+        prel_result = ""
         for key, value in self.props.items():
-            result = result + " " + key + '"' + value + '"'
+
+            prel_result = prel_result + key + '="' + value + '" '
+        result = prel_result.rstrip()
         return result
 
     def __repr__(self):
