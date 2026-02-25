@@ -36,6 +36,21 @@ class TestInlineMarkdown(unittest.TestCase):
                                      ]
                          )
 
+    def test_no_delimiter(self):
+        node = TextNode("just plain text", TextType.TEXT)
+        # note that split_nodes_delimiter is told what delimiter/type pair it’s looking
+        # for via its arguments, not by inspecting the node’s TextType
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("just plain text", TextType.TEXT)])
+
+    def test_delimiter_at_start(self):
+        node = TextNode("**bold** then", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [
+            TextNode("bold", TextType.BOLD),
+            TextNode(" then", TextType.TEXT),
+        ])
+
 
 if __name__ == "__main__":
     unittest.main()
