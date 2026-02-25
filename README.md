@@ -36,3 +36,12 @@ This function in `textnode.py` **converts** between the two representations:
 | `LINK` | `LeafNode("a", text, {"href": url})` → `<a href="...">text</a>` |
 
 Notice how `textnode.py` imports `LeafNode` from `htmlnode.py` - that's the connection point between the two modules.
+
+## The flow
+
+- Start with one node: `[TextNode(markdown_string, TextType.TEXT)]`
+- Call `split_nodes_delimiter(nodes, "**", TextType.BOLD)` → produces some BOLD nodes
+- Call `split_nodes_delimiter(result, "_", TextType.ITALIC)` → splits remaining TEXT nodes only
+- Call `split_nodes_delimiter(result, "", TextType.CODE)` → same idea
+
+**Point**: one reusable splitter + a small sequence of passes turns raw markdown into typed nodes automatically, without you inspecting each node by hand.

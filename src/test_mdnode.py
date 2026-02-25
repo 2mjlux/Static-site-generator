@@ -20,6 +20,22 @@ class TestInlineMarkdown(unittest.TestCase):
         with self.assertRaises(Exception):
             split_nodes_delimiter([node], "**", TextType.BOLD)
 
+    def test_non_TEXT(self):
+        node = TextNode("hi", TextType.BOLD)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("hi", TextType.BOLD)])
+
+    def test_multiples(self):
+        node = TextNode("a **b** c **d** e", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+        self.assertEqual(new_nodes, [TextNode("a ", TextType.TEXT),
+                                     TextNode("b", TextType.BOLD),
+                                     TextNode(" c ", TextType.TEXT),
+                                     TextNode("d", TextType.BOLD),
+                                     TextNode(" e", TextType.TEXT)
+                                     ]
+                         )
+
 
 if __name__ == "__main__":
     unittest.main()
