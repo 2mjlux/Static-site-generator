@@ -1,47 +1,63 @@
+## Static Site Generator
+
+A Markdown-to-HTML converter written in Python.
+
+## Usage
+
+```bash
+# Run the program
+python3 src/main.py
+
+# Run tests
+python3 -m unittest discover -s src
+```
+
 ## The Big Picture
 
-The code is building a **Markdown-to-HTML converter**. The two files represent different stages in that pipeline:
+The code converts Markdown text to HTML through a three-stage pipeline:
 
 ```
-Markdown Text → TextNode → HTMLNode → HTML String
+Markdown string → [TextNode] → [HTMLNode] → HTML string
 ```
 
-### `textnode.py` - The Intermediate Representation
+### `htmlnode.py` — Output Representation
 
-`TextNode` represents **parsed markdown text** with semantic meaning:
+`HTMLNode` (and its subclasses) represent actual HTML elements:
+
+- `LeafNode`: Elements with no children (like `<b>text</b>` or `<img>`). Calls `to_html()` to produce the final string.
+- `ParentNode`: Elements that contain other elements (like `<div><p>...</p></div>`). Recursively calls `to_html()` on all children.
+
+### `textnode.py` — Intermediate Representation
+
+`TextNode` represents parsed markdown text with semantic meaning before any rendering decision is made:
 
 - `text`: The actual content (e.g., "click here")
-- `text_type`: What kind of text it is (bold, italic, link, etc.)
+- `text_type`: What kind of text it is (`TextType` enum: TEXT, BOLD, ITALIC, CODE, LINK, IMAGE)
 - `url`: Optional URL for links/images
 
-Think of it as: "I know this text is **bold**, but I haven't decided how to render it yet."
-
-### `htmlnode.py` - The Output Representation
-
-`HTMLNode` (and its subclasses) represent **actual HTML elements**:
-
-- `LeafNode`: Elements with no children (like `<b>text</b>` or `<img>`)
-- `ParentNode`: Elements that contain other elements (like `<div><p>...</p></div>`)
-
-These can call `to_html()` to produce the final HTML string.
-
-### The Bridge: `text_node_to_html_node()`
-
-This function in `textnode.py` **converts** between the two representations:
+The `text_node_to_html_node()` function bridges the two representations:
 
 | TextType | Becomes |
 | --- | --- |
 | `TEXT` | `LeafNode(None, text)` → raw text |
 | `BOLD` | `LeafNode("b", text)` → `<b>text</b>` |
+| `ITALIC` | `LeafNode("i", text)` → `<i>text</i>` |
+| `CODE` | `LeafNode("code", text)` → `<code>text</code>` |
 | `LINK` | `LeafNode("a", text, {"href": url})` → `<a href="...">text</a>` |
+| `IMAGE` | `LeafNode("img", "", {"src": url, "alt": text})` → `<img ...>` |
 
-Notice how `textnode.py` imports `LeafNode` from `htmlnode.py` - that's the connection point between the two modules.
+### `mdnode.py` — Parsing Logic
 
-## The flow
+This module handles all parsing, in two phases:
 
-- Start with one node: `[TextNode(markdown_string, TextType.TEXT)]`
-- Call `split_nodes_delimiter(nodes, "**", TextType.BOLD)` → produces some BOLD nodes
-- Call `split_nodes_delimiter(result, "_", TextType.ITALIC)` → splits remaining TEXT nodes only
-- Call `split_nodes_delimiter(result, "", TextType.CODE)` → same idea
+**Inline parsing** (within a line of text):
 
-**Point**: one reusable splitter + a small sequence of passes turns raw markdown into typed nodes automatically, without you inspecting each node by hand.
+- `split_nodes_delimiter(nodes, delimiter, text_type)` — splits TEXT nodes on a delimiter (`**` for bold, `_` for italic, `` ` `` for code); non-TEXT nodes pass through unchanged.
+- `split_nodes_image` / `split_nodes_link` — extract `![alt](url)` and `[text](url)` patterns.
+- `text_to_textnodes(text)` — runs all splitters in sequence to produce a flat list of typed `TextNode`s from a raw markdown string.
+
+**Block parsing** (document structure):
+
+- `markdown_to_blocks(markdown)` — splits on `\n\n` into blocks, stripping whitespace and empty entries.
+- `block_to_block_type(block)` — classifies a block as one of: PARAGRAPH, HEADING, CODE, QUOTE, UNORDERED_LIST, ORDERED_LIST.
+- `markdown_to_html_node(markdown)` — top-level function that ties everything together, returning a `<div>` `ParentNode` containing the full document.
