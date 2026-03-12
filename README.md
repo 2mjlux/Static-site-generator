@@ -61,3 +61,13 @@ This module handles all parsing, in two phases:
 - `markdown_to_blocks(markdown)` — splits on `\n\n` into blocks, stripping whitespace and empty entries.
 - `block_to_block_type(block)` — classifies a block as one of: PARAGRAPH, HEADING, CODE, QUOTE, UNORDERED_LIST, ORDERED_LIST.
 - `markdown_to_html_node(markdown)` — top-level function that ties everything together, returning a `<div>` `ParentNode` containing the full document.
+
+## Structure of Python files
+
+Ex post, a better structure would have been as follows:
+
+- **copystatic.py** — copying static assets (images, CSS) to the output directory
+- **markdown_blocks.py** — parsing markdown into block-level nodes
+- **inline_markdown.py** — parsing inline markdown (bold, italic, etc.)
+- **htmlnode.py** — the HTML node classes and their .to_html() methods
+- **gencontent.py** — orchestrating the generation of full HTML pages from markdown templates
