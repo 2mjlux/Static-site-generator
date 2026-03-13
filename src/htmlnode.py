@@ -19,11 +19,13 @@ class HTMLNode:
         return result
 
     def __repr__(self):
-        print("This HTMLNode object has the following data members:")
-        print(f"tag: {self.tag}")
-        print(f"value: {self.value}")
-        print(f"children: {self.children}")
-        print(f"props: {self.props}")
+        return (
+                "This HTMLNode object has the following data members: "
+                f"tag: {self.tag} "
+                f"value: {self.value} "
+                f"children: {self.children} "
+                f"props: {self.props}"
+        )
 
 
 class LeafNode(HTMLNode):
@@ -31,24 +33,27 @@ class LeafNode(HTMLNode):
         super().__init__(tag=tag, value=value, props=props)
 
     def to_html(self):
-        if not self.value:
+        if self.value is None:
             raise ValueError
         elif not self.tag:
             return str(self.value)
+        elif self.tag == "img":
+            props_html = self.props_to_html()
+            return f'<{self.tag} {props_html} />'
         else:
             if self.props:
-                props_key = list(self.props.keys())[0]
-                props_value = list(self.props.values())[0]
-                props_r = f'{props_key}="{props_value}"'
-                return f'<{self.tag} {props_r}>{self.value}</{self.tag}>'
+                props_html = self.props_to_html()
+                return f'<{self.tag} {props_html}>{self.value}</{self.tag}>'
             else:
                 return f'<{self.tag}>{self.value}</{self.tag}>'
 
     def __repr__(self):
-        print("This LeafNode object has the following data members:")
-        print(f"tag: {self.tag}")
-        print(f"value: {self.value}")
-        print(f"props: {self.props}")
+        return (
+                "This LeafNode object has the following data members: "
+                f"tag: {self.tag} "
+                f"value: {self.value} "
+                f"props: {self.props} "
+        )
 
 
 class ParentNode(HTMLNode):
@@ -66,7 +71,3 @@ class ParentNode(HTMLNode):
                 inner += child.to_html()
             result = f'<{self.tag}>{inner}</{self.tag}>'
             return result
-
-
-
-

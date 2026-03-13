@@ -163,7 +163,7 @@ def quote_to_html_node(block):
 
 
 def code_to_html_node(block):
-    clean_block = block[3:-3].strip() + "\n"
+    clean_block = block[4:-3]
     text_node = TextNode(clean_block, TextType.TEXT)
     code_leaf = text_node_to_html_node(text_node)
     code_tag_node = ParentNode("code", [code_leaf])
