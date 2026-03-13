@@ -5,6 +5,20 @@ In concrete terms this can be implemented as follows:
 
 **Markdown string -> `TextNode` -> `HTMLNode` -> HTML string**.
 
+File structure:
+
+- **`textnode.py`**:  intermediate representation
+- **`mdnode.py`**:  parsing logic
+- **`htmlnode.py`**:  output representation
+- **`copystatic.py`**:  copy static content into public directory
+- **`gencontent.py`**:  generate the website in HTML
+- **`main.py`**:  execute `copystatic()` and `generate_page()`
+
+The related test files are self-explanatory.
+
+- **`main.sh`**:  execute `main.py` and launch the local http server
+
+
 The 3 stages are:
 
 ### 1. INPUT:
