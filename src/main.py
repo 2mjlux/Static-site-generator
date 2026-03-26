@@ -1,11 +1,10 @@
 from copystatic import copystatic
-from gencontent import generate_page
+from genpagesrecur import generate_pages_recursive
 
 
 def main():
-
+    generate_pages_recursive("content/", "template.html", "public/")
     copystatic("./static", "./public")
-    generate_page("content/index.md", "template.html", "public/index.html")
 
 
 main()

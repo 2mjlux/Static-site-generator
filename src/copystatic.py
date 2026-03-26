@@ -2,9 +2,8 @@ import os
 import shutil
 
 def copystatic(source, destination):
-    if os.path.exists(destination):
-        shutil.rmtree(destination)
-    os.mkdir(destination)
+    if not os.path.exists(destination):
+        os.mkdir(destination)
     files_to_copy = os.listdir(source)
     for file in files_to_copy:
         filepath = os.path.join(source, str(file))
