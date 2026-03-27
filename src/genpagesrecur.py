@@ -8,7 +8,7 @@ def is_markdown_file(filepath):
     return ext.lower() in {'.md', '.markdown', '.mdown', '.mkd'}
 
 
-def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
+def generate_pages_recursive(dir_path_content, template_path, dest_dir_path, basepath):
     if os.path.exists(dest_dir_path):
         shutil.rmtree(dest_dir_path)
     os.mkdir(dest_dir_path)
@@ -20,9 +20,9 @@ def generate_pages_recursive(dir_path_content, template_path, dest_dir_path):
             root, _ = os.path.splitext(md_file)
             html_file = root + ".html"
             file_destination = os.path.join(dest_dir_path, html_file)
-            generate_page(filepath, template_path, file_destination)
+            generate_page(filepath, template_path, file_destination, basepath)
         elif os.path.isdir(filepath):
             dir_destination = os.path.join(dest_dir_path, page)
-            generate_pages_recursive(filepath, template_path, dir_destination)
+            generate_pages_recursive(filepath, template_path, dir_destination, basepath)
         else:
             continue
