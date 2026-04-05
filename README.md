@@ -1,41 +1,68 @@
-## The Big Picture
+## The Big Picture by the great Boots himself:
 
-A static site generator is a pipeline:  read -> transform -> write.
-In concrete terms this can be implemented as follows:
+You build a program that takes **Markdown content** and **a template**, and produces a **fully deployable static website**.
 
-**Markdown string -> `TextNode` -> `HTMLNode` -> HTML string**.
+### The Data Flow
 
-File structure:
+```
+Markdown files (content/)
+        |
+        v
+  Parse Markdown
+  into a tree of
+  TextNode objects
+        |
+        v
+  Convert to a tree of
+  HTMLNode objects
+        |
+        v
+  Render to an HTML string
+        |
+        v
+  Inject into template.html
+  (replacing {{ Title }} and {{ Content }})
+        |
+        v
+  Write finished .html files
+  to docs/
+```
 
-- **`textnode.py`**:  intermediate representation
-- **`mdnode.py`**:  parsing logic
-- **`htmlnode.py`**:  output representation
-- **`copystatic.py`**:  copy static content into public directory
-- **`gencontent.py`**:  generate the website in HTML
-- **`main.py`**:  execute `copystatic()` and `generate_page()`
+* * *
 
-The related test files are self-explanatory.
+### The Layers
 
-- **`main.sh`**:  execute `main.py` and launch the local http server
+**1\. Text parsing (`textnode.py`, `inline_markdown.py`)**
+Raw Markdown text (e.g. `**bold**`, `_italic_`, `` `code` ``) is split into `TextNode` objects, each carrying a type (bold, italic, link, image, etc.).
 
+**2\. Block parsing (`markdown_blocks.py`)**
+The full Markdown document is split into blocks (paragraphs, headings, lists, code blocks, quotes). Each block type is converted into the appropriate `HTMLNode` tree.
 
-The 3 stages are:
+**3\. HTML node rendering (`htmlnode.py`)**
+`HTMLNode` objects know how to render themselves to raw HTML strings via `to_html()`. Leaf nodes hold text; parent nodes hold children.
 
-### 1. INPUT:
-The Mardown files are read.  Static assets like images and CSS are copied separately to an output directory.
+**4\. Page generation (`gencontent.py`)**
+`generate_page` reads a Markdown file, converts it to HTML, injects it into the template, rewrites `href="/` and `src="/` to use the configured `basepath`, and writes the result to the output directory.
 
-### 2. PROCESSING:
-The processing is subdivided in parsing and rendering.
+`generate_pages_recursive` walks the entire `content/` directory tree and calls `generate_page` for every file it finds.
 
+**5\. Static file copying (`copystatic.py`)**
+CSS, images, and other assets are copied from `static/` directly into `docs/`.
 
-The **parsing** is subdivided in:
+**6\. Entry point (`main.py`)**
+Reads an optional CLI argument for the `basepath` (defaulting to `/`), wipes the `docs/` directory, copies static assets, then triggers recursive page generation.
 
+**7\. Build scripts**
 
-- parsing of _blocks_, for blocktypes like heading, quote or list, and
-- parsing of _inline markdown_, which is basically word formatting like bold and italic, but also inserting like images and links.
+- `main.sh` runs the generator locally with `basepath = /` for development.
+- `build.sh` runs it with `basepath = /REPO_NAME/` for GitHub Pages deployment.
 
+* * *
 
-**Rendering** is the stage where a `TextNode` is converted into a `HTMLNode`, typically a `LeafNode` for elements with no children and a `ParentNode` for nested structures that have children.
+### Why the basepath matters
 
-### 3. OUTPUT:
-A generate_content function is used to generate the full HTML page, i.e. the `HTMLNode`(s) are converted into proper HTML readable by a web-browser.
+GitHub Pages serves your site from `https://USERNAME.github.io/REPO_NAME/`, not from `/`. Without rewriting `href="/` and `src="/` to include the repo name, all your links and images would point to the wrong place on the live site.
+
+* * *
+
+That is the full system: a pipeline from raw Markdown all the way to a live, publicly accessible website. Well done building it from scratch.
