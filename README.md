@@ -65,4 +65,4 @@ GitHub Pages serves your site from `https://USERNAME.github.io/REPO_NAME/`, not 
 
 * * *
 
-That is the full system: a pipeline from raw Markdown all the way to a live, publicly accessible website. Well done building it from scratch.
+That is the full system: a pipeline from raw Markdown all the way to a live, publicly accessible website.
